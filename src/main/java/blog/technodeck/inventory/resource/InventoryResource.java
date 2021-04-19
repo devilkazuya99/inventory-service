@@ -2,6 +2,7 @@ package blog.technodeck.inventory.resource;
 
 import java.util.List;
 
+import javax.annotation.security.RolesAllowed;
 import javax.transaction.Transactional;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -25,21 +26,24 @@ public class InventoryResource {
 
     @Transactional
     @POST
-    @Path("/category")
+    @Path("category")
+    @RolesAllowed("admin")
     public String createCategory(List<Category> categories) {
         Category.persist(categories);
         return "OK";
     }
     
     @GET
-    @Path("/category")
+    @Path("category")
+    @RolesAllowed("user")
     public List<Category> listCategory() {
         return Category.listAll(Sort.ascending("name"));
     }
     
     @Transactional
     @POST
-    @Path("/product")
+    @Path("product")
+    @RolesAllowed("admin")
     public String addProduct(List<Product> products) {
         products.forEach(p -> {p.state = ProductState.CREATED;});
         Product.persist(products);
@@ -47,7 +51,8 @@ public class InventoryResource {
     }
     
     @GET
-    @Path("/product")
+    @Path("product")
+    @RolesAllowed("user")
     public List<Product> listProducts() {
         PanacheQuery<Product> products = Product.findAll(Sort.ascending("id"));
         products.page(Page.ofSize(10)); // first 10 records
@@ -55,7 +60,8 @@ public class InventoryResource {
     }
     
     @GET
-    @Path("/category/{categoryId}/product")
+    @Path("category/{categoryId}/product")
+    @RolesAllowed("user")
     public List<Product> listCategoryProducts(@PathParam("categoryId") Long categoryId) {
         return Product.list("categoryId", categoryId);
     }
